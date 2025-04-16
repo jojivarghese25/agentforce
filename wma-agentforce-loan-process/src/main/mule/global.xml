@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="e20db0cb-5a64-4126-8c6d-27d346e9ccb4" file="properties\common-properties.yaml" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="fd26bb37-aa4c-4efb-a591-2ea3267ac30c" >
+		<http:request-connection protocol="HTTPS" host="${experian.host}" />
+	</http:request-config>
+	
+    <http:listener-config name="wma-agentforce-loan-process-api">
+        <http:listener-connection host="0.0.0.0" port="${https.port}" tlsContext="TLS_Context" protocol="HTTPS"/>
+    </http:listener-config>
+    <apikit:config name="wma-agentforce-loan-process-api-config" api="resource::aceb673b-30f8-4591-982c-8ed2cd883a70:wma-agentforce-loan-process-api:1.0.0:raml:zip:wma-agentforce-loan-process-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<http:request-config name="docusignRequestConfig" doc:name="HTTP Request configuration" doc:id="417a6ab3-8194-4ce5-8db5-bb6b257054cb" basePath="${docusignSAPI.basePath}">
+		<http:request-connection protocol="${docusignSAPI.protocol}" host="${docusignSAPI.host}" />
+	</http:request-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="41c46b3e-ed94-4baf-bd30-e331ab83952f" >
+		<file:connection workingDir="#[Mule::p('app.home')]" />
+	</file:config>
+	<http:request-config name="HTTP_Request_convert_api" doc:name="HTTP Request configuration" doc:id="0c7ba276-e18a-4f34-b964-4a0b0596ea89" >
+		<http:request-connection host="${convertAPI.host}" protocol="HTTPS"/>
+	</http:request-config>
+	<tls:context name="TLS_Context" doc:name="TLS Context" doc:id="78045866-1320-4f78-a53f-38d2e4326362" >
+		<tls:key-store type="jks" path="certs/njc-ob-account-management-papi-keystore.jks" alias="${https.certs.alias}" keyPassword="${secure::https.certs.password}" password="${secure::https.certs.password}" />
+	</tls:context>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="68b8cc40-a48a-445c-8066-366520d279bb" file="properties\secured-properties.yaml" key="${secure.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+</mule>

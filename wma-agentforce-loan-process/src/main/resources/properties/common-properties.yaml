@@ -1,0 +1,50 @@
+http:
+  port: "8081"
+  basePath: "/"
+
+  
+https:
+  port: "8082"
+  path: "/api/v1/*"
+  certs:
+    alias: "mule"
+    password: "![0F0AZHTDi7VoGjkndPA0HMEkijdzRXAc]"
+
+  
+credit.score: "700" 
+overallResponse.CONTINUE: "CONTINUE" 
+overallResponse.ACCEPT: "ACCEPT"
+overallResponse.REFER: "REFER"
+
+customer.salary: "1500"
+customer.currency: "USD"
+customer.occupationType: "Part time"
+
+docusign.emailId: "remya.r@njclabs.com,joji.varghese@njclabs.com"
+
+foreach.batchSize: "1"
+  
+experian:
+  host: "sandbox-uk-api.experian.com"
+  oauth.path: "/oauth2/v1/token"
+  oauth.username: "njclabswmtest@gmail.com"
+  oauth.password: "![d+tX7cpJAgMhhFIjvvkdFw==]"
+  oauth.clientId: "![LPhzjYbaHqyB6Q1WaN1uZMTq6v3OBVD//AIBU11rjuho+IDDlEzhsA==]"
+  oauth.clientSecret: "![/B2bcZIgeEfU+3cGlvWqDT6i9PPxkkEb]"
+  
+  credit.path : "/da/ccis-devportalapis/v1/KYC"
+  method: "POST"  
+    
+convertAPI:
+  host: "v2.convertapi.com"
+  secret: "![ckkGsXHn++s0FOIaNLna/pV8JbFMODoTfdRGBL6RnwTLJhaYtPTLrA==]"
+  path: "/convert/htm/to/pdf"
+  
+docusignSAPI:
+  host: "wma-docusign-sapi.us-e2.cloudhub.io"
+  protocol: "HTTPS"
+  basePath: "/api/v1"
+  postDocumentPath: "/documents"
+  clientId: "![KWv4jcYkB7EhYgwfNHKd0+rMRIt41O4SAY+Ap9JaPi20zPWukogIMg==]"
+  clientSecret: "![SeXIDa0MNWSAZqJv0YIsvrXCemSIHVtq1FESVJAZaYEbKHxhjzXeTPuvk8NdzgzM]"  
+  

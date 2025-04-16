@@ -1,0 +1,79 @@
+salesforce:
+  username: "![lKoSpAoV9HqUSocRWWt0vekdsy9fbdLaDJw0rj32RJM=]"
+  password: "![dtQlmAyeZxDwbpOTocWJLw==]"
+  securitytoken: "![XzzRdIbCNVDsmQe/ou/rjY3gdqw7bZPeCLPosOBL4xU=]"
+
+#imap:
+  #host: "imap.gmail.com"
+  #port: "993"
+#  username: "![ElXArjfc8THMarOg5vLS5oQPilPB5aHq]"
+#  password: "![JJksm30HrF+7m9tuUrWhngKEavhqOE7q]"
+  #username: "![u1xBj9hW95bUGYo7f+UB291M7PgpHjHl]"
+  #password: "![vgxCbCK1uni8FtTN9c7xUg==]" 
+  
+idp:
+   host: "idp-rt.us-east-1.anypoint.mulesoft.com" 
+   port: "443"
+   clientId: "![d5wXHOQgseGN990MjMuup9VZZjMK2J5LIHxspwjT41D09LbtuzqY1Q==]"
+   clientSecret: "![YvSvaEjso2kMKNEVFsWG3mzLZkXcgnCcY3sEZGRC2tzG8KxLLxhC8A==]"
+   accessTokenURL: "https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token"
+
+sf:
+  host: "wma-salesforce-sapi.us-e2.cloudhub.io"
+  port: "8092"
+  path: "/api/v1"   
+
+tls:
+  keystore:
+    password: "![9s6CWZfJozw=]"
+    type: "pkcs12"
+    path: "certs/istikaDemo.p12"
+
+
+          
+rpa:
+  host: "njc-labs-limited.rpa.mulesoft.com"
+  path: "/external/api/v1/organizations/aef5f8ac-17a6-4c3c-9e5c-0e6d951df542/processes/f8e36a88-39f3-4d36-85d8-3e833ec8912d"
+  
+  
+api: 
+  #groupId: "b0beec90-c6cc-4c36-8f7c-ef1f8f91253b"
+  artifactId: "${project.artifactId}"
+  version: "${project.version}"
+  #spec: "resource::${api.groupId}:${api.artifactId}:${api.version}:oas:zip:api.json"
+  majorVersion: "v1"
+  listenerConfig: "apiHttpListenerConfig"
+http:
+    port: "8081"
+https:
+    port: "8082"
+  
+smtp:
+  host: "![fXV93rRS8ox01CzClVDfgA==]"
+  port: "![uV2wo9A+2Ds=]"
+  user: "![xNXte3jignGojlGwDBYmkEvolkJFm7XM]"
+  password: "![vqo3oL+ZS39iL7uyV6U2HUgwbFPMCpkz]"
+  fromAddress: "![xNXte3jignGojlGwDBYmkEvolkJFm7XM]" 
+  toAddress: "remya.r@njclabs.com,joji.varghese@njclabs.com"
+  
+  
+agentImap:
+  host: "imap.gmail.com"
+  port: "993"
+  username: "![xNXte3jignGojlGwDBYmkEvolkJFm7XM]"
+  password: "![vqo3oL+ZS39iL7uyV6U2HUgwbFPMCpkz]"
+
+agentLoanImap:
+  host: "![2sNREgUhv/H73ZQCPPIXBQ==]"
+  port: "![FkXW8Uzd0Gg=]"
+  username: "![1yoBSrIe5LNfll+wHPWjCmQyxihh2Xyt]"
+  password: "![vtDngHEW5bR3uuhHQ4ELyI1GzZSsDwps]"
+  
+salesforceLoan:
+  username: "![99CCkkognt9zGJa8LuizKpDcZMLsLnm7Gq2cS2evUlU=]"
+  password: "![DBJBLQMXwRQeNdgI5x2JLQ==]"
+
+salesforceEdu:
+  username: "![99CCkkognt9zGJa8LuizKpDcZMLsLnm7N1uyAnM9ZRE=]"
+  password: "![DBJBLQMXwRQeNdgI5x2JLQ==]"
+

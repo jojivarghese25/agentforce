@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:idp-dl-extractor-120="http://www.mulesoft.org/schema/mule/idp-dl-extractor-120"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:idp-dl-extractor-110="http://www.mulesoft.org/schema/mule/idp-dl-extractor-110" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/idp-dl-extractor-110 http://www.mulesoft.org/schema/mule/idp-dl-extractor-110/current/mule-idp-dl-extractor-110.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/idp-dl-extractor-120 http://www.mulesoft.org/schema/mule/idp-dl-extractor-120/current/mule-idp-dl-extractor-120.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+	<flow name="idp-loan-dl-extract" doc:id="1e72c286-ca94-47d2-999b-09224b104ced" >
+		<email:listener-imap doc:name="On New Email - IMAP" doc:id="5a07d0a1-526d-4cd6-bba0-44d54303b900" config-ref="Email_IMAP_Loan">
+			<reconnect />
+			<scheduling-strategy >
+				<fixed-frequency frequency="20" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+			<email:imap-matcher subjectRegex="Loan Application" seen="EXCLUDE" answered="EXCLUDE" deleted="EXCLUDE"/>
+		</email:listener-imap>
+		<logger level="INFO" doc:name="Logger" doc:id="fa0abcf5-192f-4815-9e3f-cbca20c9dd1a" />
+		<ee:transform doc:name="idp input payload" doc:id="df25e430-4d79-4eb3-af0e-a62e02023740">
+			<ee:message>
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output multipart/form-data
+---
+{
+	parts: {
+	  file: {
+	  	headers: {
+	  		"Content-Disposition":{
+	  			name: "file",
+	  			filename: keysOf(payload.attachments)[0],
+	  			subtype: "form-data"
+	  		},
+	  	"Content-Type": substringBefore(payload.attachments[0].^mediaType,";"),
+	  	},
+	  content: payload.attachments[0]
+	  }
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="contactIdVar"><![CDATA[%dw 2.0
+output application/json
+import * from dw::core::Strings
+var contactId= attributes.headers.Subject
+---
+(contactId splitBy  " ") [-1 to 0] [0]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<idp-dl-extractor-120:postdocumentactionexecution doc:name="postDocumentActionExecution" doc:id="52de55df-5fcd-45eb-a988-f8a19c2a6eb3" config-ref="IDP___DL_extractor___1_2_0_Config"/>
+		<logger level="INFO" doc:name="After IDP post" doc:id="9f81aabb-4a6f-4940-bf15-618738d6c5fa" message="#[payload]" />
+		<set-variable value="#[payload.id]" doc:name="idp-id" doc:id="3a0f3f74-1d6c-47c0-b432-af424e1c496a" variableName="idp-id" />
+		<flow-ref doc:name="get-dl-details" doc:id="287c2d13-6600-4499-9302-a6dfdbebe6c2" name="get-dl-details" />
+	</flow>
+	<sub-flow name="get-dl-details" doc:id="9d9f7c02-d054-4004-ba3c-86c6aa539960" >
+		<logger level="INFO" doc:name="Before get-idp-payload" doc:id="a4c66a3e-ae6d-49be-b4a4-f8c7ac3d0fcf" message="Before get-idp-payload" />
+		<async doc:name="Async" doc:id="15442fe7-4d39-426a-92c2-0e69676c13f2">
+			<until-successful maxRetries="5" doc:name="Until Successful" doc:id="0d7d608e-e954-4e62-a012-b551e43566db" >
+				<logger level="INFO" doc:name="Before get-idp-payload" doc:id="b4549354-58ea-4183-815b-b69abfad09e2" message="Before get-idp-payload" />
+				<idp-dl-extractor-120:getdocumentactionexecution doc:name="getDocumentActionExecution" doc:id="efa8824d-3823-422f-9b84-a147e81075c7" config-ref="IDP___DL_extractor___1_2_0_Config" execution-id='#[vars."idp-id"]'/>
+				<validation:is-true doc:name="payload.status is SUCCEEDED" doc:id="7e30a9e5-095d-4f56-afe4-9e26d1ede47b" config-ref="validationConfig" expression='#[payload.status == "SUCCEEDED" or payload.status == "MANUAL_VALIDATION_REQUIRED"]' />
+				<logger level="INFO" doc:name="Logger" doc:id="2f1bc0f9-ce1a-4a64-ab99-a019737c23cd" message='#["After IDP Payload---"]'/>
+				<ee:transform doc:name="Transform Message" doc:id="a03c9b6d-1746-4cce-b960-a3838280da83">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"address": "25 MADDEN ROAD TANDRAGEE BT62 2DG",
+    "DL-Number": payload.prompts."DLNumber".answer.value default "SMITH609258W99IM 17",
+    "name": "Will Smith"
+}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<salesforce:query doc:name="Query LoanStatusObject" doc:id="ab814fcf-6dd3-43a4-b436-92c109b327cf" config-ref="Salesforce_Config_Loan" target="loanRecord">
+					<salesforce:salesforce-query><![CDATA[SELECT ID,LoanAmount__c from LoanStatusObject__c where ContactId__c = ':contactId']]></salesforce:salesforce-query>
+					<salesforce:parameters><![CDATA[#[output application/java
+---
+{
+	"contactId" : vars.contactIdVar
+}]]]></salesforce:parameters>
+				</salesforce:query>
+				<ee:transform doc:name="Transform Message" doc:id="4e942f4e-37ad-4bcf-a600-d765a08b2f1b">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	"ProofDocument__c": "DrivingLicence",
+	"ProofId__c": payload."DL-Number",
+	"Id": vars.loanRecord[0].Id,
+	"LoanStatus__c": "Approved"	
+}]]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<salesforce:update type="LoanStatusObject__c" doc:name="Update LoanStatusObject" doc:id="8fd2090a-6512-4383-9ea3-1198e48464f9" config-ref="Salesforce_Config_Loan" />
+			</until-successful>
+			<flow-ref doc:name="emailNotificationFlow" doc:id="c477486b-d9eb-41ca-8bac-346f228f1c7e" name="emailNotificationFlow" />
+		</async>
+	</sub-flow>
+	<sub-flow name="emailNotificationFlow" doc:id="16178074-762d-4ec9-ac01-c27a8421a2f9" >
+		<salesforce:query doc:name="Query Contact Object" doc:id="eafe854b-aaa2-46eb-aedd-c265c585ef6a" config-ref="Salesforce_Config_Loan" target="receipientName" >
+			<salesforce:salesforce-query ><![CDATA[SELECT Name from CONTACT where ID = ':contactId']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"contactId" : vars.contactIdVar
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<set-variable value="#[output application/java&#10;---&#10;p('smtp.toAddress')]" doc:name="Set Variable for receipients" doc:id="7dbd6e65-6505-49d4-a9e9-ff829944ce39" variableName="emailRecipients" />
+		<parse-template doc:name="Parse Template" doc:id="fa67fcc3-97ca-4515-a925-a8eff76af8b4" location="resources/emailNotification.html" />
+		<email:send doc:name="Send" doc:id="112c9bf4-a839-4db1-af16-44410feaab3d" config-ref="Email_SMTP" fromAddress="${secure::smtp.fromAddress}" subject='#[output text/plain&#10;---&#10;"Loan Approval Notification " ++ vars.contactIdVar]' toAddresses='#[vars.emailRecipients splitBy(",")]' />
+	</sub-flow>
+</mule>
